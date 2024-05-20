@@ -1,0 +1,136 @@
+services:
+  db:
+    platform: linux/amd64
+    image: mysql:8.0
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    # restart: unless-stopped
+    environment:
+      - MYSQL_DATABASE=mtips5s_db
+      - MYSQL_ROOT_PASSWORD=secret
+    volumes: 
+      - dbdata-mtips5s:/var/lib/mysql
+      # - ${PWD}/mysql/my.cnf:/etc/my.cnf:rw
+    command: '--default-authentication-plugin=mysql_native_password --max_allowed_packet=134217728'
+    networks:
+      - app-network-mtips5s
+
+  wordpress:
+    platform: linux/amd64
+    depends_on: 
+      - db
+
+    ports:
+      - "8080:80"
+    image: khuong123/wordpress:dev_4
+    container_name: wordpress
+    # restart: unless-stopped
+    env_file: .env
+    environment:
+      - WORDPRESS_DB_HOST=db:3306
+      - WORDPRESS_DB_USER=$MYSQL_USER
+      - WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD
+      - WORDPRESS_DB_NAME=mtips5s_db
+      
+    volumes:
+      - ${PWD}/src/wp-config.php:/var/www/html/wp-config.php:rw
+      # - ${PWD}/src/wp-soap-client.php:/var/www/html/wp-soap-client.php:rw
+      - ${PWD}/src/.htaccess:/var/www/html/.htaccess:rw
+      # - ${PWD}/src/phpinfo.php:/var/www/html/phpinfo.php:rw
+      # - ${PWD}/src/wp-content/:/var/www/html/wp-content/:rw
+      # - ${PWD}/src/wp-admin/:/var/www/html/wp-admin/:rw
+      - wordpress-mtips5s:/var/www/html
+    networks:
+      - app-network-mtips5s
+
+  webserver:
+    platform: linux/amd64
+    image: nginx:latest
+    container_name: webserver
+    # restart: unless-stopped
+    depends_on:
+      - wordpress
+    ports:
+      # - "8081:80"
+      - "80:80"
+      - "443:443"
+    volumes:
+      # - ${PWD}/src/wp-content/:/var/www/html/wp-content/:rw
+      # - ${PWD}/src/wp-admin/:/var/www/html/wp-admin/:rw
+      - wordpress-mtips5s:/var/www/html
+      - ./volume/nginx/nginx:/etc/nginx/nginx.d/:rw
+      - ./volume/nginx/conf/:/etc/nginx/conf.d/:rw
+      - ./volume/nginx/html/:/usr/share/nginx/html:rw
+      - ./volume/certbot/www/:/var/www/certbot/:rw
+      - ./volume/certbot/conf/:/etc/nginx/ssl/:rw
+    networks:
+      - app-network-mtips5s
+
+  # Khi nào cần xác thực thì bật lên
+  # certbot:
+  #   platform: linux/amd64
+  #   image: certbot/certbot
+  #   container_name: certbot_https
+  #   volumes:
+  #     - ./volume/certbot/www/:/var/www/certbot/:rw
+  #     - ./volume/certbot/conf/:/etc/letsencrypt/:rw
+  #   networks:
+  #       - app-network-mtips5s
+
+  phpmyadmin:
+    platform: linux/amd64
+    image: phpmyadmin
+    depends_on:
+      - db
+    container_name: phpmyadmin
+    # restart: always
+    ports:
+      - 8090:80
+    environment:
+      - PMA_ARBITRARY=1
+      - MAX_EXECUTION_TIME=1200
+      - MEMORY_LIMIT=1512M
+      - UPLOAD_LIMIT=258M
+      - PMA_HOST=db:3306
+      - PMA_PORT=3306
+      # - PMA_USER=root
+      # - PMA_PASSWORD=secret
+    volumes: 
+      - dbdata-mtips5s:/var/lib/mysql
+      # - ${PWD}/phpmyadmin/config.inc.php:/etc/phpmyadmin/config.inc.php:rw
+    networks:
+      - app-network-mtips5s
+  
+  # mtips5s_web:
+  #   platform: linux/amd64
+  #   # restart: on-failure
+  #   image: khuong123/mtips5s_web:dev_9
+  #   container_name: mtips5s_web
+  #   env_file: .env
+  #   volumes:
+  #     - ./templates/traineddata/:/usr/share/tesseract-ocr/5/tessdata/
+  #     - ./templates/assets/:/app/templates/assets/
+  #   # environment:
+  #   #   - SQLALCHEMY_DATABASE_URI=mysql+pymysql://root:secret@db:3306/my_hikari
+  #   environment:
+  #     DB_HOST: db:3306
+  #     DB_NAME: my_hikari
+  #     DB_USER: $MYSQL_USER
+  #     DB_PASSWORD: $MYSQL_PASSWORD
+  #   ports:
+  #     - "8100:8000"
+  #   depends_on:
+  #     - db
+  #   networks:
+  #     - app-network-mtips5s
+
+volumes:
+  certbot-etc:
+  wordpress-mtips5s:
+  dbdata-mtips5s:
+
+networks:
+  app-network-mtips5s:
+    driver: bridge
+
