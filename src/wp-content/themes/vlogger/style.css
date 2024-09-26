@@ -1,0 +1,28 @@
+/*
+Theme Name: Vlogger
+Theme URI: http://themes2go.xyz/demos/vlogger/
+Author: Themes2go
+Author URI: http://www.themes2go.xyz
+Description: WordPress theme for youtubers and video courses
+Version: 3.1.0
+Requires PHP: 7.4
+Tested up to: WordPress 6.4
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: vlogger
+Domain Path: /languages/
+Tags: two-columns, right-sidebar
+*/
+
+/**
+ * ================================================================================================
+ * 
+ *
+ *	INFO FOR DEVELOPERS:
+ *	This file is empty. The main css file is minified into css/ttg-main.css
+ * 	Is not recommended to add CSS here, instead, use the child theme and add your styles to that.
+ *
+ *
+ *
+ * ================================================================================================
+ */

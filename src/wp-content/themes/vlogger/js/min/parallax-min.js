@@ -1,0 +1,1 @@
+!function($){$.fn.parallax=function(n){var o=$(window).height(),t=$.extend({speed:.15},n);return this.each(function(){var n=$(this);$(document).scroll(function(){var e=$(window).scrollTop(),r=n.offset().top,i=n.outerHeight();if(!(e>=r+i||r>=e+o)){var c=Math.round((r-e)*t.speed);n.css("background-position","center "+c+"px")}})})}}(jQuery);

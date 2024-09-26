@@ -38,7 +38,7 @@ services:
       # - ${PWD}/src/wp-soap-client.php:/var/www/html/wp-soap-client.php:rw
       - ${PWD}/src/.htaccess:/var/www/html/.htaccess:rw
       # - ${PWD}/src/phpinfo.php:/var/www/html/phpinfo.php:rw
-      # - ${PWD}/src/wp-content/:/var/www/html/wp-content/:rw
+      - ${PWD}/src/wp-content/:/var/www/html/wp-content/:rw
       # - ${PWD}/src/wp-admin/:/var/www/html/wp-admin/:rw
       - wordpress-mtips5s:/var/www/html
     networks:
